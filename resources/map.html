@@ -46,26 +46,50 @@
 <body>
     <div id="map"></div>
     <div class="buttons">
+        <button class="button" onclick="toggleAddPointMode(this)">Add Point</button>
         <button class="button" onclick="connectRobot()">Connect</button>
         <button class="button" onclick="loadCSV()">Load CSV</button>
+        <button class="button" onclick="exportWaypoints()">Export CSV</button>
         <button class="button" onclick="sendWaypoints()">Send Waypoints</button>
-        <button class="button" onclick="exitApp()">Exit</button>
+        <button class="button" onclick="exitApp()">Exit</button>   
     </div>
     <script>
         // Initialize map
-        var map = L.map('map').setView([45.4642, 9.1900], 13);
+        var map = L.map('map').setView([45.4641, 9.1919], 17);  // Centered at Duomo di Milano
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
 
+        // Draw path on the map
+        function drawPath(waypoints) {
+            console.log("Drawing path with waypoints:", waypoints); // Log waypoints for debugging
+            if (waypoints.length > 1) {
+                var polyline = L.polyline(waypoints, { color: 'red' }).addTo(map);
+                map.fitBounds(polyline.getBounds());
+                alert("Waypoints plotted successfully!");
+            } else {
+                alert("Not enough waypoints to draw a path!");
+            }
+        }
+        
         // Button click handlers
         function connectRobot() {
             window.pywebview.api.connect_robot().then(alert);
         }
 
         function loadCSV() {
-            window.pywebview.api.load_csv().then(alert);
+            window.pywebview.api.load_csv().then((response) => {
+                let waypoints = JSON.parse(response); // Parse JSON response
+                console.log("Received waypoints:", waypoints); // Log parsed waypoints
+                if (waypoints.length > 0) {
+                    // alert("Waypoints loaded successfully!");
+                    drawPath(waypoints);  // Draw the path on the map
+                } else {
+                    alert("No waypoints loaded.");
+                }
+            });
         }
+
 
         function sendWaypoints() {
             window.pywebview.api.send_waypoints().then(alert);
@@ -74,6 +98,67 @@
         function exitApp() {
             window.pywebview.api.exit_app();
         }
+
+        var waypoints = [];
+        var addingPoints = false; // State to track if we are adding points
+    
+        // Toggle add point mode
+        function toggleAddPointMode(button) {
+            addingPoints = !addingPoints; // Toggle state
+            if (addingPoints) {
+                button.innerHTML = "Stop Adding Points";
+                button.style.backgroundColor = "red";
+                // alert("Click on the map to add waypoints.");
+                map.on('click', addPointToMap); // Enable map click listener
+            } else {
+                button.innerHTML = "Add Point";
+                button.style.backgroundColor = ""; // Reset button color
+                map.off('click', addPointToMap); // Disable map click listener
+            }
+        }
+        
+        // Export waypoints using backend
+        function exportWaypoints() {
+            // Inform the user if no waypoints exist
+            if (waypoints.length === 0) {
+                alert("No waypoints to export!");
+                return;
+            }
+
+            // Call backend API to save CSV file
+            window.pywebview.api.export_waypoints()
+                .then(response => {
+                    alert(response); // Show backend response
+                })
+                .catch(error => {
+                    console.error("Error exporting waypoints:", error);
+                });
+        }
+        
+        // Add a waypoint to the map and backend
+        function addPointToMap(event) {
+            var latlng = event.latlng;
+
+            // Add point to local array
+            waypoints.push([latlng.lat, latlng.lng]);
+
+            // Add marker on map
+            L.marker([latlng.lat, latlng.lng]).addTo(map);
+
+            // Sync with backend
+            window.pywebview.api.add_waypoint(latlng.lat, latlng.lng)
+                .then(response => {
+                    console.log("Backend response:", response);
+                })
+                .catch(error => {
+                    console.error("Error adding waypoint to backend:", error);
+                });
+
+            console.log("Added point:", latlng);
+        }
+
+ 
     </script>
+    
 </body>
 </html>
