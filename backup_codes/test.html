@@ -1,0 +1,22 @@
+<button onclick="connectRobot()">Connect</button>
+<button onclick="sendWaypoints()">Send Waypoints</button>
+<button onclick="loadCSV()">Load CSV</button>
+<button onclick="exitApp()">Exit</button>
+
+<script>
+    function connectRobot() {
+        window.pywebview.api.connectRobot();  // This calls the Python method connect_robot()
+    }
+
+    function loadCSV() {
+        window.pywebview.api.loadCSV();  // This calls the Python method load_csv()
+    }
+
+    function sendWaypoints() {
+        window.pywebview.api.sendWaypoints();  // This calls the Python method send_waypoints()
+    }
+
+    function exitApp() {
+        window.pywebview.api.exitApp();  // This calls the Python method exit_app()
+    }
+</script>
