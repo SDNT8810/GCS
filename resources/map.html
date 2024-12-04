@@ -60,29 +60,14 @@
             maxZoom: 19
         }).addTo(map);
 
-        // Draw path on the map
-        function drawPath(waypoints) {
-            console.log("Drawing path with waypoints:", waypoints); // Log waypoints for debugging
-            if (waypoints.length > 1) {
-                var polyline = L.polyline(waypoints, { color: 'red' }).addTo(map);
-                map.fitBounds(polyline.getBounds());
-                alert("Waypoints plotted successfully!");
-            } else {
-                alert("Not enough waypoints to draw a path!");
-            }
-        }
-        
-        // Button click handlers
-        function connectRobot() {
-            window.pywebview.api.connect_robot().then(alert);
-        }
-
         function loadCSV() {
             window.pywebview.api.load_csv().then((response) => {
                 let waypoints = JSON.parse(response); // Parse JSON response
                 console.log("Received waypoints:", waypoints); // Log parsed waypoints
                 if (waypoints.length > 0) {
-                    // alert("Waypoints loaded successfully!");
+                    alert("Waypoints loaded successfully!");
+                    // Clear existing waypoints before adding new ones
+                    clearWaypoints();
                     drawPath(waypoints);  // Draw the path on the map
                 } else {
                     alert("No waypoints loaded.");
@@ -90,6 +75,54 @@
             });
         }
 
+        // Draw path on the map with colored markers and a yellow path
+        function drawPath(waypoints) {
+            console.log("Drawing path with waypoints:", waypoints); // Log waypoints for debugging
+
+            if (waypoints.length < 2) {
+                alert("Not enough waypoints to draw a path!");
+                return;
+            }
+
+            // Add markers for waypoints
+            for (let i = 0; i < waypoints.length; i++) {
+                if (i === 0) {
+                    // Green marker for the starting point
+                    L.marker(waypoints[i], { icon: createCustomMarker("green") }).addTo(map)
+                        .bindPopup("Starting Point").openPopup();
+                } else if (i === waypoints.length - 1) {
+                    // Red marker for the ending point
+                    L.marker(waypoints[i], { icon: createCustomMarker("red") }).addTo(map)
+                        .bindPopup("Ending Point");
+                } else {
+                    // Blue marker for midpoints
+                    L.marker(waypoints[i], { icon: createCustomMarker("blue") }).addTo(map)
+                        .bindPopup(`Midpoint ${i}`);
+                }
+            }
+
+            // Draw a yellow polyline for the path
+            var polyline = L.polyline(waypoints, { color: 'yellow', weight: 5 }).addTo(map);
+
+            // Adjust map view to fit the path
+            map.fitBounds(polyline.getBounds());
+        }
+
+        // Function to create a custom colored marker icon
+        function createCustomMarker(color) {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+                iconSize: [16, 16],
+                popupAnchor: [0, -8]
+            });
+        }
+
+        
+        // Button click handlers
+        function connectRobot() {
+            window.pywebview.api.connect_robot().then(alert);
+        }
 
         function sendWaypoints() {
             window.pywebview.api.send_waypoints().then(alert);
@@ -105,15 +138,30 @@
         // Toggle add point mode
         function toggleAddPointMode(button) {
             addingPoints = !addingPoints; // Toggle state
+            const exportButton = document.querySelector("button[onclick='exportWaypoints()']");
+            
             if (addingPoints) {
                 button.innerHTML = "Stop Adding Points";
                 button.style.backgroundColor = "red";
-                // alert("Click on the map to add waypoints.");
-                map.on('click', addPointToMap); // Enable map click listener
+                exportButton.disabled = true; // Disable Export button
+                exportButton.style.backgroundColor = "gray"
+                
+                // Clear existing markers before adding new ones
+                clearWaypoints();
+                
+                // Enable map click listener
+                map.on('click', addPointToMap); 
             } else {
                 button.innerHTML = "Add Point";
                 button.style.backgroundColor = ""; // Reset button color
-                map.off('click', addPointToMap); // Disable map click listener
+                exportButton.disabled = false; // Enable Export button
+                exportButton.style.backgroundColor = ""
+
+                // Draw the path for the new waypoints
+                drawPath(waypoints);
+
+                // Disable map click listener
+                map.off('click', addPointToMap); 
             }
         }
         
@@ -135,15 +183,27 @@
                 });
         }
         
-        // Add a waypoint to the map and backend
+        // Clear the waypoints (remove old markers)
+        function clearWaypoints() {
+            waypoints = []; // Clear the waypoints array
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer); // Remove all marker layers
+                }
+
+                // Remove polyline if it exists
+                if (layer instanceof L.Polyline) {
+                    map.removeLayer(layer); // Remove polyline layer
+                }
+            });
+        }
+
+        // Add a point to the map
         function addPointToMap(event) {
             var latlng = event.latlng;
-
-            // Add point to local array
-            waypoints.push([latlng.lat, latlng.lng]);
-
-            // Add marker on map
-            L.marker([latlng.lat, latlng.lng]).addTo(map);
+            waypoints.push([latlng.lat, latlng.lng]); // Add point to waypoints array
+            L.marker([latlng.lat, latlng.lng]).addTo(map); // Add a marker on the map
+            console.log("Added point:", latlng);
 
             // Sync with backend
             window.pywebview.api.add_waypoint(latlng.lat, latlng.lng)
@@ -157,7 +217,6 @@
             console.log("Added point:", latlng);
         }
 
- 
     </script>
     
 </body>

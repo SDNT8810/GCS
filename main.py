@@ -15,14 +15,27 @@ class GCSBackend:
         return "Connected to robot!"
 
     def load_csv(self):
+        import csv
         file_path = filedialog.askopenfilename(
             filetypes=[("CSV files", "*.csv")],
             title="Select CSV File"
         )
         if file_path:
-            return f"Loaded CSV from {file_path}"
+            waypoints = []
+            try:
+                with open(file_path, "r") as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    for row in reader:
+                        latitude = float(row["latitude"])
+                        longitude = float(row["longitude"])
+                        waypoints.append([latitude, longitude])  # Ensure this is a list, not a tuple
+                print("Parsed Waypoints:", waypoints)
+                return json.dumps(waypoints)  # Serialize as JSON
+            except Exception as e:
+                print(f"Error loading CSV: {e}")
+                return json.dumps([])  # Return an empty list if parsing fails
         else:
-            return "Nothing Loaded!"
+            return json.dumps([])  # Return an empty list if no file selected
 
     def send_waypoints(self):
         print("Python: Sending waypoints to the robot...")
