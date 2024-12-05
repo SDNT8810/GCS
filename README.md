@@ -5,19 +5,19 @@ Simple Ground Station Control For Ground Robots
 to use this code run setup.sh
 
 ```markdown
-# Sourcing Your Workspace
+.. tabs::
 
-<details>
-<summary><strong>Linux / macOS</strong></summary>
+   .. tab:: Linux/macOS
 
-```bash
-source install/local_setup.bash
+      ```bash
+      source install/local_setup.bash
+      ```
 
-</details> <details> <summary><strong>Windows</strong></summary>
-install\local_setup.bat
-</details>
+   .. tab:: Windows
 
-```
+      ```powershell
+      install\local_setup.bat
+      ```
 
 
 
