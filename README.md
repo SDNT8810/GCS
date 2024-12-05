@@ -15,7 +15,9 @@ source install/local_setup.bash
 
 </details> <details> <summary><strong>Windows</strong></summary>
 install\local_setup.bat
-</details> ```
+</details>
+
+```
 
 
 
