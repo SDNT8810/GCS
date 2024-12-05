@@ -2,3 +2,9 @@ folium
 pywebview
 selenium
 cefpython
+webview
+pywebview
+flask
+tkinter
+csv
+json
