@@ -124,18 +124,22 @@
             });
         }
 
-        var connectedToRobot = false; // State to track if we are adding points
+        var connectedToRobot = true; // State to track if we are adding points
         // Button click handlers
-        function connectRobot(button) {
-            window.pywebview.api.connect_robot().then(alert);
-            connectedToRobot = !connectedToRobot; // Toggle state
+        function connectRobot(button) {            
             const exportButton = document.querySelector("button[onclick='sendWaypoints()']");
             if (connectedToRobot) {
-                button.innerHTML = "Connected";
-                button.style.backgroundColor = "green";
-                exportButton.disabled = false; // Disable Export button
-                exportButton.style.backgroundColor = ""
+                // if (window.pywebview.api.connect_robot().then(alert)) {
+                if (true) {
+                    connectedToRobot = false; // Toggle state
+                    button.innerHTML = "Connected";
+                    button.style.backgroundColor = "green";
+                    exportButton.disabled = false; // Disable Export button
+                    exportButton.style.backgroundColor = ""
+                }
             } else {
+                window.pywebview.api.disconnect_robot().then(alert)
+                connectedToRobot = true; // Toggle state
                 button.innerHTML = "Connect";
                 button.style.backgroundColor = ""; // Reset button color
                 exportButton.disabled = true; // Enable Export button

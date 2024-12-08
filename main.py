@@ -20,30 +20,31 @@ class GCSBackend:
                 capture_output=True,
                 check=True
             )
-            return f"Script output: {result.stdout.strip()}"
+            return True
         except subprocess.CalledProcessError as e:
             print("Error:", e)
-            return f"Error: {e.stderr.strip()}"
+            return False
         except Exception as e:
             print("Error:", e)
-            return f"Unexpected error: {e}"
-        
-
+            return False
     
     def disconnect_robot(self):
-                try:
-                    # Example: Replace 'echo "Connected!"' with your desired bash command
-                    result = subprocess.run(
-                        ['echo', 'Connected!'],
-                        text=True,
-                        capture_output=True,
-                        check=True
-                    )
-                    print("Bash output:", result.stdout.strip())  # Log the output for debugging
-                    return f"Bash output: {result.stdout.strip()}"
-                except subprocess.CalledProcessError as e:
-                    print("Error:", e)
-                    return f"Error: {e}"
+        print("Python: disconnecting robot...")
+        script_path = "tb3_nav2/disconnect"
+        try:
+            result = subprocess.run(
+            [script_path],
+            text=True,
+            capture_output=True,
+            check=True
+        )
+            return "Robot disconnected successfully!"
+        except subprocess.CalledProcessError as e:
+            print("Error:", e)
+            return False
+        except Exception as e:
+            print("Error:", e)
+            return False
                 
     def load_csv(self):
         import csv
