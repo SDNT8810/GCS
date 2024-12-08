@@ -4,16 +4,47 @@ from flask import Flask, render_template
 from tkinter import filedialog
 import json
 import csv
+import subprocess
 
 class GCSBackend:
     def __init__(self):
         # Initialize waypoints as an empty list
         self.waypoints = []
-
+        
     def connect_robot(self):
-        print("Python: Connecting to robot...")
-        return "Connected to robot!"
+        script_path = "tb3_nav2/a"
+        try:
+            result = subprocess.run(
+                [script_path],  # Do not prefix with 'bash' if it’s an executable
+                text=True,
+                capture_output=True,
+                check=True
+            )
+            return f"Script output: {result.stdout.strip()}"
+        except subprocess.CalledProcessError as e:
+            print("Error:", e)
+            return f"Error: {e.stderr.strip()}"
+        except Exception as e:
+            print("Error:", e)
+            return f"Unexpected error: {e}"
+        
 
+    
+    def disconnect_robot(self):
+                try:
+                    # Example: Replace 'echo "Connected!"' with your desired bash command
+                    result = subprocess.run(
+                        ['echo', 'Connected!'],
+                        text=True,
+                        capture_output=True,
+                        check=True
+                    )
+                    print("Bash output:", result.stdout.strip())  # Log the output for debugging
+                    return f"Bash output: {result.stdout.strip()}"
+                except subprocess.CalledProcessError as e:
+                    print("Error:", e)
+                    return f"Error: {e}"
+                
     def load_csv(self):
         import csv
         file_path = filedialog.askopenfilename(

@@ -47,7 +47,7 @@
     <div id="map"></div>
     <div class="buttons">
         <button class="button" onclick="toggleAddPointMode(this)">Add Point</button>
-        <button class="button" onclick="connectRobot()">Connect</button>
+        <button class="button" onclick="connectRobot(this)">Connect</button>
         <button class="button" onclick="loadCSV()">Load CSV</button>
         <button class="button" onclick="exportWaypoints()">Export CSV</button>
         <button class="button" onclick="sendWaypoints()">Send Waypoints</button>
@@ -59,6 +59,12 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
+        var exportButton = document.querySelector("button[onclick='sendWaypoints()']");
+        exportButton.disabled = true; // Disable Export button
+        exportButton.style.backgroundColor = "gray"
+        exportButton = document.querySelector("button[onclick='exportWaypoints()']");
+        exportButton.disabled = true; // Disable Export button
+        exportButton.style.backgroundColor = "gray"
 
         function loadCSV() {
             window.pywebview.api.load_csv().then((response) => {
@@ -118,10 +124,24 @@
             });
         }
 
-        
+        var connectedToRobot = false; // State to track if we are adding points
         // Button click handlers
-        function connectRobot() {
+        function connectRobot(button) {
             window.pywebview.api.connect_robot().then(alert);
+            connectedToRobot = !connectedToRobot; // Toggle state
+            const exportButton = document.querySelector("button[onclick='sendWaypoints()']");
+            if (connectedToRobot) {
+                button.innerHTML = "Connected";
+                button.style.backgroundColor = "green";
+                exportButton.disabled = false; // Disable Export button
+                exportButton.style.backgroundColor = ""
+            } else {
+                button.innerHTML = "Connect";
+                button.style.backgroundColor = ""; // Reset button color
+                exportButton.disabled = true; // Enable Export button
+                exportButton.style.backgroundColor = "gray"
+            }
+
         }
 
         function sendWaypoints() {
@@ -133,7 +153,7 @@
         }
 
         var waypoints = [];
-        var addingPoints = false; // State to track if we are adding points
+        var addingPoints = fatlse; // State to track if we are adding points
     
         // Toggle add point mode
         function toggleAddPointMode(button) {
