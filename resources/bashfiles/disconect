@@ -1,0 +1,13 @@
+#!/bin/bash
+
+pkill -9 gzserver
+pkill -9 gzclient
+pkill -9 rviz2
+clear
+
+cd tb3_nav2
+
+rm -r -f build log install
+
+echo Clean done
+

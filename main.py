@@ -14,7 +14,7 @@ class GCSBackend:
 
     def connect_robot(self):
         print('Robot Connected')
-        script_path = self.Shared_Path + "/tb3_nav2/a"
+        script_path = self.Shared_Path + "/GCS/resources/bashfiles/simulation"
         try:
             result = subprocess.run(
                 [script_path],  # Do not prefix with 'bash' if it’s an executable
@@ -32,7 +32,7 @@ class GCSBackend:
     
     def disconnect_robot(self):
         print("Python: disconnecting robot...")
-        script_path = self.Shared_Path + "/tb3_nav2/disconect"
+        script_path = self.Shared_Path + "/GCS/resources/bashfiles/disconect"
         try:
             result = subprocess.run(
             [script_path],
@@ -71,21 +71,41 @@ class GCSBackend:
         else:
             return json.dumps([])  # Return an empty list if no file selected
 
+    def export_temporary_waypoints(self):
+        if not self.waypoints:
+            print("No waypoints to export!")
+            return "No waypoints to export!"
+        else:
+            # Open save dialog to select path and filename
+            file_path = self.Shared_Path + "/GCS/resources/temporary.csv"
+            
+            with open(file_path, mode="w+", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["latitude", "longitude"])  # CSV header
+                writer.writerows(self.waypoints)  # Write the waypoints
+            print(f"Waypoints exported to {file_path}")
+            file.close()
+            return f"Waypoints exported successfully to {file_path}!"
+        
     def send_waypoints(self):
         print("Python: Sending waypoints to the robot...")
-        script_path = self.Shared_Path + "/tb3_nav2/follower"
+        self.export_temporary_waypoints()
+        script_path = self.Shared_Path + "/GCS/resources/bashfiles/follower"
         try:
+            print("Python: 1...")
             result = subprocess.run(
-            [script_path],
-            text=True,
-            capture_output=True,
-            check=True
-        )
+                [script_path],
+                text=True,
+                capture_output=True,
+                check=True
+            )
             return "Waypoints sent successfully!"
         except subprocess.CalledProcessError as e:
+            print("Python: 2...")
             print("Error:", e)
             return False
         except Exception as e:
+            print("Python: 3...")
             print("Error:", e)
             return False
         
@@ -120,7 +140,7 @@ class GCSBackend:
         except Exception as e:
             print(f"Error exporting waypoints: {e}")
             return f"Error exporting waypoints: {e}"
-    
+ 
     def clear_waypoints(self):
         # Clear all waypoints
         self.waypoints = []
