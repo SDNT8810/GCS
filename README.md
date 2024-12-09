@@ -6,9 +6,18 @@ to use this code run setup.sh
 
 
 ## Todo:
-waypoint follower : https://github.com/ros-navigation/navigation2_tutorials/blob/rolling/nav2_gps_waypoint_follower_demo/nav2_gps_waypoint_follower_demo/logged_waypoint_follower.py
+1- Points send to Field2Cover
 
-run bash codes : subprocess.run(["bash", "script.sh"], check=True)
+2- Receive Pathes from the F2C
 
+3- Offset in the ground
 
+4- Add the Automation of Bunker+GPS+IMU+Bagrecorder+etc
 
+5- Produce several coverage pathes
+
+6- Generate the T-Shape path
+
+7- Bag Analyser ()
+
+8- 
