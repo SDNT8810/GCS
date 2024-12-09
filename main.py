@@ -10,9 +10,11 @@ class GCSBackend:
     def __init__(self):
         # Initialize waypoints as an empty list
         self.waypoints = []
-        
+        self.Shared_Path = os.getcwd()
+
     def connect_robot(self):
-        script_path = "tb3_nav2/a"
+        print('Robot Connected')
+        script_path = self.Shared_Path + "/tb3_nav2/a"
         try:
             result = subprocess.run(
                 [script_path],  # Do not prefix with 'bash' if it’s an executable
@@ -30,7 +32,7 @@ class GCSBackend:
     
     def disconnect_robot(self):
         print("Python: disconnecting robot...")
-        script_path = "tb3_nav2/disconnect"
+        script_path = self.Shared_Path + "/tb3_nav2/disconect"
         try:
             result = subprocess.run(
             [script_path],
@@ -71,7 +73,22 @@ class GCSBackend:
 
     def send_waypoints(self):
         print("Python: Sending waypoints to the robot...")
-        return "Waypoints sent successfully!"
+        script_path = self.Shared_Path + "/tb3_nav2/follower"
+        try:
+            result = subprocess.run(
+            [script_path],
+            text=True,
+            capture_output=True,
+            check=True
+        )
+            return "Waypoints sent successfully!"
+        except subprocess.CalledProcessError as e:
+            print("Error:", e)
+            return False
+        except Exception as e:
+            print("Error:", e)
+            return False
+        
 
     def add_waypoint(self, latitude, longitude):
         self.waypoints.append((latitude, longitude))

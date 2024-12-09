@@ -129,8 +129,8 @@
         function connectRobot(button) {            
             const exportButton = document.querySelector("button[onclick='sendWaypoints()']");
             if (connectedToRobot) {
-                // if (window.pywebview.api.connect_robot().then(alert)) {
-                if (true) {
+                if (window.pywebview.api.connect_robot().then(alert)) {
+                //if (true) {
                     connectedToRobot = false; // Toggle state
                     button.innerHTML = "Connected";
                     button.style.backgroundColor = "green";
