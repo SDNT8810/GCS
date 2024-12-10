@@ -2,6 +2,7 @@
 
 pkill -9 gzserver
 pkill -9 gzclient
+
 clear
 
 cd tb3_nav2

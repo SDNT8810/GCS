@@ -77,7 +77,7 @@ class GCSBackend:
             return "No waypoints to export!"
         else:
             # Open save dialog to select path and filename
-            file_path = self.Shared_Path + "/GCS/resources/temporary.csv"
+            file_path = self.Shared_Path + "/tb3_nav2/src/follow_waypoints_pkg/resource/temporary.csv"
             
             with open(file_path, mode="w+", newline="") as file:
                 writer = csv.writer(file)
@@ -99,6 +99,7 @@ class GCSBackend:
                 capture_output=True,
                 check=True
             )
+            print("Python: After 1...", result)
             return "Waypoints sent successfully!"
         except subprocess.CalledProcessError as e:
             print("Python: 2...")
